@@ -6,6 +6,7 @@ attrs==23.2.0
 cachetools==5.3.3
 certifi==2024.2.2
 charset-normalizer==3.3.2
+click==8.1.7
 dataclasses-json==0.6.4
 fastapi==0.110.0
 frozenlist==1.4.1
@@ -17,12 +18,13 @@ googleapis-common-protos==1.63.0
 greenlet==3.0.3
 grpcio==1.62.1
 grpcio-status==1.62.1
+h11==0.14.0
 idna==3.6
 jsonpatch==1.33
 jsonpointer==2.4
 langchain==0.1.12
 langchain-community==0.0.28
-langchain-core==0.1.31
+langchain-core==0.1.32
 langchain-google-genai==0.0.11
 langchain-text-splitters==0.0.1
 langsmith==0.1.25
@@ -49,4 +51,5 @@ tqdm==4.66.2
 typing-inspect==0.9.0
 typing_extensions==4.10.0
 urllib3==2.2.1
+uvicorn==0.28.0
 yarl==1.9.4
