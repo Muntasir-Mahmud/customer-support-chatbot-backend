@@ -75,6 +75,7 @@ memory = ConversationBufferMemory(
 conversation = LLMChain(
     llm=llm,
     prompt=prompt,
+    verbose=True,
     memory=memory
 )
 
