@@ -10,12 +10,8 @@ app = FastAPI(
 )
 
 
-def invoke_llm_with_retry(query: str):
-    """
-    Retry the agent if a tool fails to run. This can help when there
-    are intermittent connection issues to external APIs.
-    """
-    return chatbot_executor(query)
+def invoke_llm_with_retry(query: str, session_id: str):
+    return chatbot_executor(query, session_id=session_id)
 
 
 @app.get("/")
@@ -27,6 +23,6 @@ def get_status():
 def query_chatbot(
         query: ChatbotQueryInput,
 ) -> ChatbotQueryOutput:
-    query_response = invoke_llm_with_retry(query.text)
+    query_response = invoke_llm_with_retry(query.text, query.session_id)
 
     return query_response

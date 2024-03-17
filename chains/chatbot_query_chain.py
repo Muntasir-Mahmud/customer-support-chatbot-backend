@@ -1,16 +1,18 @@
+import json
 import os
 
+from langchain.schema import messages_from_dict, messages_to_dict
 from langchain.chains import LLMChain
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
     SystemMessagePromptTemplate,
-    MessagesPlaceholder,
 )
 from langchain.memory import ConversationBufferMemory
+from langchain_community.chat_message_histories.in_memory import \
+    ChatMessageHistory
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-HOSPITAL_QA_MODEL = os.getenv("HOSPITAL_QA_MODEL")
 
 GOOGLE_API_KEY = "AIzaSyAdVC2DwLqu0Mhufn2N4AlX-Ab6Wrk_eBw"
 
@@ -55,46 +57,63 @@ Remember:
 Note: you’re assigned for a very important task. You are a human like chatbot. So, don’t do anything silly. And make your response small, because customer will be bored if you give a big response.
 """
 
-# Prompt 1
 prompt = ChatPromptTemplate(
     messages=[
         SystemMessagePromptTemplate.from_template(template),
-        # The `variable_name` here is what must align with memory
-        MessagesPlaceholder(variable_name="chat_history"),
         HumanMessagePromptTemplate.from_template("{question}"),
     ]
 )
 
-# Notice that we `return_messages=True` to fit into the MessagesPlaceholder
-# Notice that `"chat_history"` aligns with the MessagesPlaceholder name
-memory = ConversationBufferMemory(
-    memory_key="chat_history",
-    return_messages=True
-)
 
-conversation = LLMChain(
-    llm=llm,
-    prompt=prompt,
-    verbose=True,
-    memory=memory
-)
+def save_chat_memory(memory):
+    extracted_messages = memory.chat_memory.messages
+    ingest_to_db = messages_to_dict(extracted_messages)
+
+    with open("chat.json", "w") as file:
+        json_string = json.dumps(ingest_to_db, indent=4)
+        file.write(json_string)
 
 
-def chatbot_executor(query):
-    answer = conversation.invoke({"question": f"""[Start Examples]
-    Customer: How many people can a machine take attendance of?
-    Operator: Our cloud based attendance machine can take attendance of 100 people!
-    --
-    Customer: Is this machine physical?
-    Operator: No, it is cloud based.
-    --
-    Customer: How much coffee can I put into the machine?
-    Operator: That is not something I am trained to assist with.
-    [End Examples]
+def empty_chat_file():
+    with open("chat.json", "w") as file:
+        json_string = json.dumps({}, indent=4)
+        file.write(json_string)
 
-    Your conversation starts now.
 
-    Customer: {query}
-    Operator:"""})
+def retrieve_chat_memory():
+    with open("chat.json", "r") as file:
+        chat_history = file.read()
+    if not chat_history:
+        return ConversationBufferMemory(return_messages=True)
+    retrieve_from_db = json.loads(chat_history)
+    retrieved_messages = messages_from_dict(retrieve_from_db)
+    retrieved_chat_history = ChatMessageHistory(messages=retrieved_messages)
+    retrieved_memory = ConversationBufferMemory(
+        chat_memory=retrieved_chat_history,
+        return_messages=True)
+    return retrieved_memory
 
+
+def chatbot_executor(query, session_id):
+    with open('session.txt', 'r') as session:
+        session = session.read()
+
+    if session_id != session:
+        with open('session.txt', 'w') as session:
+            session.write(session_id)
+        empty_chat_file()
+
+    memory = retrieve_chat_memory()
+
+    conversation = LLMChain(
+        llm=llm,
+        prompt=prompt,
+        # verbose=True,
+        memory=memory
+    )
+
+    answer = conversation.invoke({"question": query})
+    empty_chat_file()
+    save_chat_memory(memory)
+    print(memory.chat_memory.messages)
     return {"input": query, "output": answer["text"]}
