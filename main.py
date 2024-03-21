@@ -11,7 +11,7 @@ app = FastAPI(
 
 
 def invoke_llm_with_retry(query: str, session_id: str):
-    return chatbot_executor(query, session_id=session_id)
+    return chatbot_executor(query, session_id)
 
 
 @app.get("/")
