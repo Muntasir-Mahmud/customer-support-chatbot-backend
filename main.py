@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from models.chatbot_query import ChatbotQueryInput, ChatbotQueryOutput
-from utils.async_utils import async_retry
 
 from chains.chatbot_query_chain import chatbot_executor
 
@@ -22,7 +21,6 @@ def get_status():
 @app.post("/chatbot")
 def query_chatbot(
         query: ChatbotQueryInput,
-) -> ChatbotQueryOutput:
+) -> dict:
     query_response = invoke_llm_with_retry(query.text, query.session_id)
-
     return query_response

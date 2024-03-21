@@ -3,12 +3,8 @@ from langchain_community.chat_message_histories.sql import \
 
 from langchain.prompts import (
     ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    SystemMessagePromptTemplate,
 )
-from langchain.memory import ConversationBufferMemory
-from langchain_community.chat_message_histories.in_memory import \
-    ChatMessageHistory
+
 from langchain_core.prompts import MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_google_genai import ChatGoogleGenerativeAI
