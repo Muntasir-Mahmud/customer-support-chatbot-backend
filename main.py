@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 from models.chatbot_query import ChatbotQueryInput, ChatbotQueryOutput
 
 from chains.chatbot_query_chain import chatbot_executor
-from utils.sender_utils import send_message
 
 load_dotenv()
 
