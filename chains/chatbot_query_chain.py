@@ -11,8 +11,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 GOOGLE_API_KEY = "AIzaSyAdVC2DwLqu0Mhufn2N4AlX-Ab6Wrk_eBw"
 
-llm = ChatGoogleGenerativeAI(model="gemini-pro",
-                             temperature=0.001,
+llm = ChatGoogleGenerativeAI(model="gemini-1.0-pro-latest",
+                             temperature=0.1,
                              google_api_key=GOOGLE_API_KEY,
                              convert_system_message_to_human=True)
 
