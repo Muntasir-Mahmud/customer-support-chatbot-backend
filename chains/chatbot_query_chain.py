@@ -11,14 +11,7 @@ GOOGLE_API_KEY = "AIzaSyAdVC2DwLqu0Mhufn2N4AlX-Ab6Wrk_eBw"
 llm = ChatGoogleGenerativeAI(model="gemini-1.0-pro-latest",
                              temperature=0.1,
                              google_api_key=GOOGLE_API_KEY,
-                             convert_system_message_to_human=True,
-                             safety_settings={
-                                HarmCategory.HARM_CATEGORY_UNSPECIFIED: HarmBlockThreshold.BLOCK_NONE,
-                                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-                                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-                                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-                                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-                             })
+                             convert_system_message_to_human=True)
 
 template = """You are a customer support agent for Stellar Automation Limited, a company that sells smart attendance devices. You will provide chat support in Bengali.
 Customer Approach:
@@ -70,14 +63,7 @@ prompt = ChatPromptTemplate.from_messages(
 chain = prompt | ChatGoogleGenerativeAI(model="gemini-pro",
                                         temperature=0.1,
                                         google_api_key=GOOGLE_API_KEY,
-                                        convert_system_message_to_human=True,
-                                        safety_settings={
-                                            HarmCategory.HARM_CATEGORY_UNSPECIFIED: HarmBlockThreshold.BLOCK_NONE,
-                                            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-                                            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-                                            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-                                            HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-                                        })
+                                        convert_system_message_to_human=True)
 
 
 def chatbot_executor(query: str, session_str: str):
