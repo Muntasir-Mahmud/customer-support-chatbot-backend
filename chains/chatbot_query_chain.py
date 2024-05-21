@@ -1,12 +1,10 @@
+from langchain.prompts import ChatPromptTemplate
 from langchain_community.chat_message_histories.sql import \
     SQLChatMessageHistory
-
-from langchain.prompts import (
-    ChatPromptTemplate,
-)
 from langchain_core.prompts import MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_google_genai import ChatGoogleGenerativeAI, HarmBlockThreshold, HarmCategory
+from langchain_google_genai import (ChatGoogleGenerativeAI, HarmBlockThreshold,
+                                    HarmCategory)
 
 GOOGLE_API_KEY = "AIzaSyAdVC2DwLqu0Mhufn2N4AlX-Ab6Wrk_eBw"
 
@@ -72,7 +70,14 @@ prompt = ChatPromptTemplate.from_messages(
 chain = prompt | ChatGoogleGenerativeAI(model="gemini-pro",
                                         temperature=0.1,
                                         google_api_key=GOOGLE_API_KEY,
-                                        convert_system_message_to_human=True)
+                                        convert_system_message_to_human=True,
+                                        safety_settings={
+                                            HarmCategory.HARM_CATEGORY_UNSPECIFIED: HarmBlockThreshold.BLOCK_NONE,
+                                            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+                                            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                                            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                                            HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                                        })
 
 
 def chatbot_executor(query: str, session_str: str):
