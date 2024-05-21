@@ -2,13 +2,11 @@ import json
 import os
 
 import requests as rq
-
-from fastapi import FastAPI, Request, Response, status
 from dotenv import load_dotenv
+from fastapi import FastAPI, Request, Response, status
 
-
-from models.chatbot_query import ChatbotQueryInput
 from chains.chatbot_query_chain import chatbot_executor
+from models.chatbot_query import ChatbotQueryInput
 
 load_dotenv()
 
@@ -60,9 +58,6 @@ async def query_chatbot_messenger(request: Request):
         sender_id = data_dict["entry"][0]["messaging"][0]["sender"]["id"]
         query_response = invoke_llm_with_retry(message, sender_id)
         message = query_response["output"]
-
-        print(message)
-
         send_message_url = f"{BASE_URL}{PAGE_ID}/messages?recipient={{id:{sender_id}}}&message={{text:'{message}'}}&messaging_type=RESPONSE&access_token={ACCESS_TOKEN}"
         rq.post(send_message_url)
 
