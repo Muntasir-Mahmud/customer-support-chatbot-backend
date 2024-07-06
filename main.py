@@ -15,10 +15,6 @@ BASE_URL = os.getenv('BASE_URL')
 PAGE_ID = os.getenv('PAGE_ID')
 ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
 
-__import__('pysqlite3')
-import sys
-
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 app = FastAPI(
     title="Customer Support Chatbot",
