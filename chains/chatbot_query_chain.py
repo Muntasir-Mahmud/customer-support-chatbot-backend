@@ -1,19 +1,59 @@
-from langchain.prompts import ChatPromptTemplate
+from langchain.chains import (create_history_aware_retriever,
+                              create_retrieval_chain)
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.chat_message_histories.sql import \
     SQLChatMessageHistory
+from langchain_community.document_loaders import Docx2txtLoader
+from langchain_community.vectorstores import Chroma
 from langchain_core.prompts import MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_google_genai import (ChatGoogleGenerativeAI, HarmBlockThreshold,
-                                    HarmCategory)
+from langchain_google_genai import (ChatGoogleGenerativeAI,
+                                    GoogleGenerativeAIEmbeddings,
+                                    HarmBlockThreshold, HarmCategory)
 
 GOOGLE_API_KEY = "AIzaSyAdVC2DwLqu0Mhufn2N4AlX-Ab6Wrk_eBw"
+
+# TODO: add dotenv for Goolge api key
+# TODO: read the article from the python langchain neo4j
+
 
 llm = ChatGoogleGenerativeAI(model="gemini-1.0-pro-latest",
                              temperature=0.1,
                              google_api_key=GOOGLE_API_KEY,
                              convert_system_message_to_human=True)
 
-template = """You are a customer support agent for Stellar Automation Limited, a company that sells smart attendance devices. You will provide chat support in Bengali.
+loader = Docx2txtLoader("resources/chatbot-resource.docx")
+data = loader.load_and_split()
+
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=500)
+context = data[0].page_content
+texts = text_splitter.split_text(context)
+
+embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001",google_api_key=GOOGLE_API_KEY)
+
+vector_index = Chroma.from_texts(texts, embeddings).as_retriever(search_kwargs={"k":1})
+
+
+contextualize_system_prompt = """Given a chat history and the latest user question \
+which might reference context in the chat history, formulate a standalone question \
+which can be understood without the chat history. Do NOT answer the question, \
+just reformulate it if needed and otherwise return it as is."""
+
+contextualize_q_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", contextualize_system_prompt),
+        MessagesPlaceholder("chat_history"),
+        ("human", "{input}"),
+    ]
+)
+
+history_aware_retriever = create_history_aware_retriever(
+    llm, vector_index, contextualize_q_prompt
+)
+
+qa_system_prompt = """You are a customer support agent for Stellar Automation Limited, a company that sells smart attendance devices. You will provide chat support in Bengali.
 Customer Approach:
 1.	Customer Initiation: The customer will message you first.
 2.	Greetings:
@@ -47,24 +87,22 @@ Remember:
 •	Focus on recommending the most suitable device based on the gathered information.
 •	And do not add English translation of Bengali in your response.
 Note: you’re assigned for a very important task. You are a human like chatbot. So, don’t do anything silly. And make your response small, because customer will be bored if you give a big response.
+Note: Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know.
+{context}
 """
 
 
-prompt = ChatPromptTemplate.from_messages(
-    messages=[
-        ("system", template),
-        # The `variable_name` here is what must align with memory
-        MessagesPlaceholder(variable_name="history"),
-        ("human", "{question}"),
+qa_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", qa_system_prompt),
+        MessagesPlaceholder("chat_history"),
+        ("human", "{input}"),
     ]
 )
 
+question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
 
-chain = prompt | ChatGoogleGenerativeAI(model="gemini-pro",
-                                        temperature=0.1,
-                                        google_api_key=GOOGLE_API_KEY,
-                                        convert_system_message_to_human=True)
-
+rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
 
 def chatbot_executor(query: str, session_str: str):
     """
@@ -79,19 +117,20 @@ def chatbot_executor(query: str, session_str: str):
     """
     # Initialize the chatbot with message history
     chain_with_history = RunnableWithMessageHistory(
-        chain,
+        rag_chain,
         lambda session_id: SQLChatMessageHistory(
             session_id=session_id, connection_string="sqlite:///sqlite.db"
         ),
-        input_messages_key="question",
-        history_messages_key="history",
+        input_messages_key="input",
+        history_messages_key="chat_history",
+        output_messages_key="answer",
     )
 
     # Set the configuration for the chatbot
     config = {"configurable": {"session_id": session_str}}
 
     # Invoke the chatbot with the query and configuration
-    answer = chain_with_history.invoke({"question": query}, config=config)
+    answer = chain_with_history.invoke({"input": query}, config=config)
 
     # Return the input query and the chatbot's response
-    return {"input": query, "output": answer.content}
+    return {"input": query, "output": answer["answer"]}

@@ -51,10 +51,12 @@ async def verify_messenger(request: Request):
 
 @app.post("/webhook", status_code=status.HTTP_200_OK)
 async def query_chatbot_messenger(request: Request):
+    print("new message")
     data = await request.body()
     data_dict = json.loads(data.decode())
     if data_dict["entry"][0]["messaging"][0].get("message"):
         message = data_dict["entry"][0]["messaging"][0]["message"]["text"]
+        print(message)
         sender_id = data_dict["entry"][0]["messaging"][0]["sender"]["id"]
         query_response = invoke_llm_with_retry(message, sender_id)
         message = query_response["output"]
