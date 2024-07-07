@@ -9,3 +9,7 @@ class ChatbotQueryInput(BaseModel):
 class ChatbotQueryOutput(BaseModel):
     input: str
     output: str
+
+
+class TrainingDataInput(BaseModel):
+    text: str

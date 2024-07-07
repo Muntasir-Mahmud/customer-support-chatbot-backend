@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request, Response, status
 
 from chains.chatbot_query_chain import chatbot_executor
-from models.chatbot_query import ChatbotQueryInput
+from models.chatbot_query import ChatbotQueryInput, TrainingDataInput
+from utils.training_data_utils import load_training_data, update_training_data
 
 load_dotenv()
 
@@ -30,6 +31,19 @@ def invoke_llm_with_retry(query: str, session_id: str):
 def get_status() -> dict:
     return {"status": "running"}
 
+
+@app.post("/training")
+def upload_training_data(
+        query: TrainingDataInput,
+) -> dict:
+    updated_training_data = update_training_data(query.text)
+    return updated_training_data
+
+
+@app.get("/training")
+def get_training_data() -> dict:
+    data = load_training_data()
+    return data
 
 @app.post("/chatbot")
 def query_chatbot(
