@@ -1,11 +1,14 @@
 from docx import Document
 from langchain_community.document_loaders import Docx2txtLoader
 
+from chains.chatbot_query_chain import initialize_rag_chain
+
 
 def update_training_data(text: str):
     document = Document("resources/chatbot-resource.docx")
     document.add_paragraph(text)
     document.save('resources/chatbot-resource.docx')
+    initialize_rag_chain()
 
     data = load_training_data()
     
