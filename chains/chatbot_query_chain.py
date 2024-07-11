@@ -15,6 +15,12 @@ from langchain_google_genai import (ChatGoogleGenerativeAI,
 
 GOOGLE_API_KEY = "AIzaSyAdVC2DwLqu0Mhufn2N4AlX-Ab6Wrk_eBw"
 
+__import__('pysqlite3')
+import sys
+
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
+
 # TODO: add dotenv for Goolge api key
 # TODO: read the article from the python langchain neo4j
 
