@@ -17,10 +17,10 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 GOOGLE_API_KEY = "AIzaSyAdVC2DwLqu0Mhufn2N4AlX-Ab6Wrk_eBw"
 
-# __import__('pysqlite3')
-# import sys
+__import__('pysqlite3')
+import sys
 
-# sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 
 # TODO: add dotenv for Goolge api key
