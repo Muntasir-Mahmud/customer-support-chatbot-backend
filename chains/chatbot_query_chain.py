@@ -36,11 +36,11 @@ def initialize_rag_chain(google_api_key=GOOGLE_API_KEY):
     just reformulate it if needed and otherwise return it as is."""
 
 
-    qa_system_prompt = """You are an Customer support assistant for question-answering tasks.
-    Use the following pieces of retrieved context to answer the question.
-    If you don't get the answer from the context, just say that you don't know, don't try to make up an answer.
-    Always give answer in Bengali.
-    You tone should be more friendly and professional. You can answer in your own words, and keep the answer concise.
+    qa_system_prompt = """You are a customer support assistant tasked with answering questions.
+    Use the provided context to respond to the questions.
+    If the context doesn't contain the answer, simply state that you don't know. Do not attempt to create an answer.
+    Always respond in Bengali.
+    Maintain a friendly and professional tone. Answer in your own words and keep it concise.
     {context}
     """
 
