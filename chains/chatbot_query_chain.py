@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from langchain.chains import (create_history_aware_retriever,
                               create_retrieval_chain)
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -13,7 +14,9 @@ from langchain_google_genai import (ChatGoogleGenerativeAI,
                                     GoogleGenerativeAIEmbeddings,
                                     HarmBlockThreshold, HarmCategory)
 
-GOOGLE_API_KEY = "AIzaSyAdVC2DwLqu0Mhufn2N4AlX-Ab6Wrk_eBw"
+load_dotenv()
+
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
 __import__('pysqlite3')
 import sys
@@ -21,7 +24,6 @@ import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 
-# TODO: add dotenv for Goolge api key
 # TODO: read the article from the python langchain neo4j
 
 def initialize_rag_chain(google_api_key=GOOGLE_API_KEY):
