@@ -74,7 +74,7 @@ rag_template = """You are an assistant for question-answering tasks. Use the fol
     Helpful Answer:"""
 
 conversation_template = """
-Role: Customer Support Agent at Stellar Automation Ltd.
+Role: Customer Support Agent at X Technologies Ltd.
 
 Goal: Provide informative and helpful responses in Bengali to customer inquiries about attendance devices, strictly adhering to the provided CONTEXT and PROMPT.
 
@@ -102,7 +102,9 @@ Limitations:
 
 Conversation Flow:
 
-    1. Greeting: Begin with a friendly greeting. Example:"স্টেলার অটোমেশন আপনাকে স্বাগতম। আপনাকে কিভাবে সাহায্য করতে পারি?? "
+    1. Greeting:
+        • If the customer doesn't greets in first query: Answer customers question
+        • If the customer greets : Respond with the standard greeting, e.g., "এক্স টেকনোলজিস লিমিটেড এ আপনাকে স্বাগতম। আপনাকে কিভাবে সাহায্য করতে পারি??"
     
     2. Product Recommendation:
         • Ask clarifying questions if necessary:
@@ -249,7 +251,6 @@ class GraphState(TypedDict):
 
 def generate_rag(state):
     print("---RAG---")
-    # print("context =============", state["context"])
     question = state["question"]
     print(state["messages"])
     state["messages"].append(HumanMessage(content=state['question']))
@@ -266,7 +267,6 @@ def generate_conversation(state):
 
     generation = conversation_chain.invoke(
         {"context": context, "question": question, "history": history})
-    # print(state)
     state["messages"].append(AIMessage(content=generation))
     return {"context": "", "question": question, "messages": state["messages"]}
 

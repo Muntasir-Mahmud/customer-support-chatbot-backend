@@ -16,7 +16,6 @@ BASE_URL = os.getenv('BASE_URL')
 PAGE_ID = os.getenv('PAGE_ID')
 ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
 
-
 __import__('pysqlite3')
 import sys
 
@@ -50,6 +49,7 @@ def get_training_data() -> dict:
     data = load_training_data()
     return data
 
+
 @app.post("/chatbot")
 def query_chatbot(
         query: ChatbotQueryInput,
@@ -77,6 +77,7 @@ async def query_chatbot_messenger(request: Request):
         message = data_dict["entry"][0]["messaging"][0]["message"]["text"]
         print(message)
         sender_id = data_dict["entry"][0]["messaging"][0]["sender"]["id"]
+        print(sender_id)
         query_response = invoke_llm_with_retry(message, sender_id)
         message = query_response["output"]
         send_message_url = f"{BASE_URL}{PAGE_ID}/messages?recipient={{id:{sender_id}}}&message={{text:'{message}'}}&messaging_type=RESPONSE&access_token={ACCESS_TOKEN}"
