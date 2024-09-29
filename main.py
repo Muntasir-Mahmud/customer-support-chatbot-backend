@@ -81,8 +81,8 @@ async def query_chatbot_messenger(request: Request):
         query_response = invoke_llm_with_retry(message, sender_id)
         message = query_response["output"]
         send_message_url = f"{BASE_URL}{PAGE_ID}/messages?recipient={{id:{sender_id}}}&message={{text:'{message}'}}&messaging_type=RESPONSE&access_token={ACCESS_TOKEN}"
-        rq.post(send_message_url)
-
+        response = rq.post(send_message_url)
+        print(response.text)
         return True
 
     return True
